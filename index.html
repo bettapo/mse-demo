@@ -2,75 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MSE demo page</title>
+    <title>Video demos</title>
 </head>
 <body>
-    <h1>MSE Demo</h1>
-    <div>
-        <video controls width="80%"></video>
-    </div>
-
-    <script>
-        const BASE_URL = 'https://dash.akamaized.net/akamai/bbb_30fps/';
-        const initUrl = BASE_URL + 'bbb_30fps_1280x720_4000k/bbb_30fps_1280x720_4000k_0.m4v';
-
-        let sourceBuffer;
-        let index = 1;
-        const amountOfChunks = 159;
-        const video = document.querySelector('video');
-
-        function fetchSegment(url) {
-            return fetch(url, {
-                responseType: 'arraybuffer'
-            }).then((res) => {
-                if (!res.ok) {
-                    console.warn('Unexpected status code ' + res.status + ' for ' + url);
-                    return;
-                }
-
-                return res.arrayBuffer();
-            });
-        }
-
-        if (window.MediaSource) {
-            // Создание объекта MediaSource
-            const ms = new MediaSource();
-            // Связывание <video> с объектом MediaSource
-            video.src = URL.createObjectURL(ms);
-            // Подписка на событие перехода объекта MediaSource в состояние open.
-            // Это значит, что source был открыт <video> и готов к добавлению данных к объектам SourceBuffer в sourceBuffers.
-            ms.addEventListener('sourceopen', onMediaSourceOpen);
-
-            function onMediaSourceOpen() {
-                // Добавление SourceBuffer для определенного формата видео
-                sourceBuffer = ms.addSourceBuffer('video/mp4; codecs="avc1.64001f"');
-                // Подписка на событие окончания добавления или очистки буфера
-                sourceBuffer.addEventListener('updateend', fetchAndAppendNextSegment);
-
-                fetchSegment(initUrl).then((e) => {
-                    appendToBuffer(e);
-                    video.play();
-                });
-            }
-
-            function fetchAndAppendNextSegment() {
-                const url = BASE_URL + `bbb_30fps_1280x720_4000k/bbb_30fps_1280x720_4000k_${index}.m4v`;
-
-                fetchSegment(url).then((e) => {
-                    appendToBuffer(e);
-                    index++;
-                    if (index > amountOfChunks) {
-                        sourceBuffer.removeEventListener('updateend', fetchAndAppendNextSegment);
-                    }
-                });
-            }
-
-            function appendToBuffer(videoChunk) {
-                sourceBuffer.appendBuffer(new Uint8Array(videoChunk));
-            }
-        } else {
-            console.error('No Media Source API available');
-        }
-    </script>
+<h1>Video demos' index</h1>
+<ul>
+    <li><a href="safari-hls-example.html">Safari HLS</a></li>
+    <li><a href="mse.html">Media Source Extension</a></li>
+    <li><a href="mms.html">Managed Media Source</a></li>
+    <li><a href="mms-airplay.html">Managed Media Source + AirPlay</a></li>
+    <li><a href="mms-no-airplay.html">Managed Media Source without AirPlay</a></li>
+</ul>
 </body>
 </html>
